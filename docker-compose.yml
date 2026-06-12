@@ -1,7 +1,5 @@
-version: "3.9"
-
 services:
-# Database
+  # Database 
   postgres:
     image: postgres:15-alpine
     container_name: interview_postgres
@@ -9,29 +7,29 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-interview_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-interview_pass}
       POSTGRES_DB: ${POSTGRES_DB:-interview_db}
-  volumes:
-    - postgres_data:/var/lib/postgresql/data
-  ports:
-    - "5432:5432"
-  healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U interview_user -d interview_db"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interview_user -d interview_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Redis
+  # Redis (Cache + Celery Broker) 
   redis:
     image: redis:7-alpine
     container_name: interview_redis
     ports:
-    - "6379:6379"
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # MinIO (File Storage)
+  # MinIO (File Storage) 
   minio:
     image: minio/minio:latest
     container_name: interview_minio
@@ -47,7 +45,7 @@ services:
 
   # FastAPI Backend
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: interview_backend
@@ -57,25 +55,25 @@ services:
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - SECRET_KEY=${SECRET_KEY:-supersecretkey-change-in-production}
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
-      - CORS_ORIGINS+http://localhost:3000
+      - CORS_ORIGINS=["http://localhost:3000"]
     volumes:
       - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
       postgres:
-        conditions: service_healthy
+        condition: service_healthy
       redis:
         condition: service_healthy
-      command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Calery Worker
-  calery_worker:
-    build: 
+  # Celery Worker 
+  celery_worker:
+    build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: interview_celery
@@ -85,7 +83,7 @@ services:
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - SECRET_KEY=${SECRET_KEY:-supersecretkey-change-in-production}
     volumes:
       - ./backend:/app
@@ -94,9 +92,9 @@ services:
       - postgres
     command: celery -A app.core.celery_app worker --loglevel=info --concurrency=2
 
-  # React Frontend
+  # React Frontend 
   frontend:
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: interview_frontend
@@ -110,14 +108,14 @@ services:
     depends_on:
       - backend
 
-  # Nginx Reverse Proxy
+  # Nginx Reverse Proxy 
   nginx:
     image: nginx:alpine
     container_name: interview_nginx
     volumes:
       - ./docker/nginx.conf:/etc/nginx/nginx.conf
     ports:
-      - "80;80"
+      - "80:80"
     depends_on:
       - backend
       - frontend
