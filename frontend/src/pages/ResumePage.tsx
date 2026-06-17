@@ -104,7 +104,7 @@ export default function ResumePage() {
             {uploading ? (
               <div>
                 <div className="w-8 h-8 border-2 border-volt/40 border-t-volt rounded-full animate-spin mx-auto mb-3" />
-                <p className="text-sm text-volt">Analyzing with Gemini AI...</p>
+                <p className="text-sm text-volt">Analyzing with AI...</p>
               </div>
             ) : (
               <div>

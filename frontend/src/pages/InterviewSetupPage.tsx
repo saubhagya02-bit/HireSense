@@ -97,7 +97,7 @@ export default function InterviewSetupPage() {
           Set up your interview
         </h1>
         <p className="text-slate-500 text-sm">
-          Configure the session and Gemini will generate tailored questions
+          Configure the session and AI will generate tailored questions
         </p>
       </div>
 
@@ -258,7 +258,7 @@ export default function InterviewSetupPage() {
           {loading ? (
             <>
               <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              Gemini is generating questions...
+              AI is generating questions...
             </>
           ) : (
             <>
