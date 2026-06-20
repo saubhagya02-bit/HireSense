@@ -5,10 +5,6 @@ celery_app = Celery(
     "interview_platform",
     broker=settings.REDIS_URL,
     backend=settings.REDIS_URL,
-    include=[
-        "app.services.tasks.audio_tasks",
-        "app.services.tasks.ai_tasks",
-    ],
 )
 
 celery_app.conf.update(
