@@ -30,6 +30,25 @@ export const authAPI = {
   register: (data: any) => api.post("/api/auth/register", data),
   login: (data: any) => api.post("/api/auth/login", data),
   me: () => api.get("/api/users/me"),
+  forgotPassword: (email: string) =>
+    api.post("/api/auth/forgot-password", { email }),
+  resetPassword: (token: string, new_password: string) =>
+    api.post("/api/auth/reset-password", { token, new_password }),
+  changePassword: (current_password: string, new_password: string) =>
+    api.post("/api/users/change-password", { current_password, new_password }),
+};
+
+// User / Profile
+export const userAPI = {
+  getMe: () => api.get("/api/users/me"),
+  updateProfile: (data: {
+    full_name?: string;
+    target_role?: string;
+    experience_years?: number;
+  }) => api.put("/api/users/me", data),
+  changePassword: (current_password: string, new_password: string) =>
+    api.post("/api/users/change-password", { current_password, new_password }),
+  deleteAccount: () => api.delete("/api/users/me"),
 };
 
 // Interviews
@@ -37,7 +56,7 @@ export const interviewAPI = {
   create: (data: any) => api.post("/api/interviews/", data),
   list: () => api.get("/api/interviews/"),
   get: (id: number) => api.get(`/api/interviews/${id}`),
-  start: (id: number, data: any) => api.post(`/api/interviews/${id}/start`),
+  start: (id: number) => api.post(`/api/interviews/${id}/start`),
   submitAnswer: (id: number, data: any) =>
     api.post(`/api/interviews/${id}/answers`, data),
   complete: (id: number) => api.post(`/api/interviews/${id}/complete`),
