@@ -15,8 +15,8 @@ import clsx from "clsx";
 
 export default function InterviewPage() {
   const { id } = useParams<{ id: string }>();
+  const sessionId = Number(id?.replace(":", "")); 
   const navigate = useNavigate();
-  const sessionId = Number(id);
 
   const [session, setSession] = useState<any>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
