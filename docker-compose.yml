@@ -1,5 +1,6 @@
 services:
-  # Database 
+
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: interview_postgres
@@ -12,12 +13,17 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U interview_user -d interview_db"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-interview_user} -d ${POSTGRES_DB:-interview_db}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
-  # Redis (Cache + Celery Broker) 
+  # Redis
   redis:
     image: redis:7-alpine
     container_name: interview_redis
@@ -29,7 +35,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # MinIO (File Storage) 
+  # MinIO
   minio:
     image: minio/minio:latest
     container_name: interview_minio
@@ -50,16 +56,16 @@ services:
       dockerfile: Dockerfile
     container_name: interview_backend
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-interview_user}:${POSTGRES_PASSWORD:-interview_pass}@postgres:5432/${POSTGRES_DB:-interview_db}
-      - REDIS_URL=redis://redis:6379/0
-      - MINIO_ENDPOINT=minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
-      - GROQ_API_KEY=${GROQ_API_KEY}
-      - SECRET_KEY=${SECRET_KEY:-supersecretkey-change-in-production}
-      - ALGORITHM=HS256
-      - ACCESS_TOKEN_EXPIRE_MINUTES=30
-      - CORS_ORIGINS=["http://localhost:3000"]
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-interview_user}:${POSTGRES_PASSWORD:-interview_pass}@postgres:5432/${POSTGRES_DB:-interview_db}
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      SECRET_KEY: ${SECRET_KEY:-supersecretkey-change-in-production}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      CORS_ORIGINS: '["http://localhost:3000"]'
     volumes:
       - ./backend:/app
     ports:
@@ -69,37 +75,43 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      minio:
+        condition: service_started
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Celery Worker 
+  # Celery Worker
   celery_worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: interview_celery
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-interview_user}:${POSTGRES_PASSWORD:-interview_pass}@postgres:5432/${POSTGRES_DB:-interview_db}
-      - REDIS_URL=redis://redis:6379/0
-      - MINIO_ENDPOINT=minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
-      - GROQ_API_KEY=${GROQ_API_KEY}
-      - SECRET_KEY=${SECRET_KEY:-supersecretkey-change-in-production}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-interview_user}:${POSTGRES_PASSWORD:-interview_pass}@postgres:5432/${POSTGRES_DB:-interview_db}
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      SECRET_KEY: ${SECRET_KEY:-supersecretkey-change-in-production}
     volumes:
       - ./backend:/app
     depends_on:
-      - redis
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
     command: celery -A app.core.celery_app worker --loglevel=info --concurrency=2
 
-  # React Frontend 
+  # React Frontend
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: interview_frontend
     environment:
-      - VITE_API_URL=http://localhost:8000
+      VITE_API_URL: http://localhost:8000
     ports:
       - "3000:3000"
     volumes:
@@ -108,18 +120,19 @@ services:
     depends_on:
       - backend
 
-  # Nginx Reverse Proxy 
+  # Nginx
   nginx:
     image: nginx:alpine
     container_name: interview_nginx
     volumes:
-      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - "80:80"
     depends_on:
       - backend
       - frontend
 
+# IMPORTANT: this must be outside "services:"
 volumes:
   postgres_data:
   minio_data:
