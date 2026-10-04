@@ -10,21 +10,39 @@ from groq import Groq
 from app.core.config import settings
 
 client = Groq(api_key=settings.GROQ_API_KEY)
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-120b"
 
 
 async def _ask(prompt: str, max_tokens: int = 1500) -> str:
     """Send a prompt to Groq and return the text response."""
+
+    if not settings.GROQ_API_KEY:
+        raise RuntimeError("GROQ_API_KEY is not configured")
+
     response = client.chat.completions.create(
         model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
         max_tokens=max_tokens,
         temperature=0.7,
     )
-    return response.choices[0].message.content.strip()
+
+    if not response.choices:
+        raise RuntimeError("Groq returned no choices")
+
+    content = response.choices[0].message.content
+
+    if not content:
+        raise RuntimeError("Groq returned an empty response")
+
+    return content.strip()
 
 
-# Question Generation 
+# Question Generation
 async def generate_interview_questions(
     role: str,
     interview_type: str,
@@ -36,7 +54,11 @@ async def generate_interview_questions(
     """Generate tailored interview questions."""
 
     skills_str = ", ".join(skills or []) or "general software engineering"
-    resume_section = f"\nCandidate resume context:\n{resume_context[:1500]}" if resume_context else ""
+    resume_section = (
+        f"\nCandidate resume context:\n{resume_context[:1500]}"
+        if resume_context
+        else ""
+    )
 
     prompt = f"""You are a senior technical interviewer at a top tech company.
 Generate {count} interview questions for a {difficulty} {role} position.
@@ -61,7 +83,7 @@ Return ONLY the JSON array, no markdown, no explanation, no extra text."""
     return json.loads(raw)
 
 
-# Answer Evaluation 
+# Answer Evaluation
 async def evaluate_answer(
     question: str,
     answer: str,
@@ -141,10 +163,12 @@ async def generate_session_summary(
 ) -> Dict[str, Any]:
     """Generate comprehensive post-interview analysis."""
 
-    answers_summary = "\n".join([
-        f"Q{i+1}: Score {a.get('overall_score', 0):.0f}/100 — {a.get('ai_feedback', '')[:150]}"
-        for i, a in enumerate(answers_data)
-    ])
+    answers_summary = "\n".join(
+        [
+            f"Q{i+1}: Score {a.get('overall_score', 0):.0f}/100 — {a.get('ai_feedback', '')[:150]}"
+            for i, a in enumerate(answers_data)
+        ]
+    )
 
     prompt = f"""You are a senior interview coach summarizing a mock interview for a {role} candidate.
 
@@ -184,10 +208,9 @@ async def get_ai_interviewer_response(
 ) -> str:
     """Generate a dynamic interviewer follow-up response."""
 
-    history_text = "\n".join([
-        f"{m['role'].upper()}: {m['content']}"
-        for m in conversation_history[-4:]
-    ])
+    history_text = "\n".join(
+        [f"{m['role'].upper()}: {m['content']}" for m in conversation_history[-4:]]
+    )
 
     prompt = f"""You are an experienced technical interviewer for a {role} position.
 Be professional and concise (2-3 sentences max).
