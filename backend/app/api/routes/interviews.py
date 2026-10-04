@@ -65,16 +65,22 @@ async def create_session(
 
     try:
         questions_data = await ai_service.generate_interview_questions(
-            role=session.target_role,
-            interview_type=data.interview_type,
-            difficulty=data.difficulty,
-            count=data.total_questions,
-            skills=skills,
-            resume_context=resume_context,
-        )
+        role=session.target_role,
+        interview_type=data.interview_type,
+        difficulty=data.difficulty,
+        count=data.total_questions,
+        skills=skills,
+        resume_context=resume_context,
+    )
     except Exception as e:
+        await db.rollback()
+
+        import logging
+        logging.exception("Question generation failed")
+
         raise HTTPException(
-            status_code=500, detail=f"Question generation failed: {str(e)}"
+        status_code=500,
+        detail=f"Question generation failed: {str(e)}",
         )
 
     for idx, q in enumerate(questions_data):
