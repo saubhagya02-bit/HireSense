@@ -2,147 +2,83 @@ import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "",
+  headers: { "Content-Type": "application/json" },
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().token;
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 api.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   (error) => {
-    console.error("API Error:", {
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
-      data: error.response?.data,
-    });
-
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
       window.location.href = "/login";
     }
-
     return Promise.reject(error);
-  },
+  }
 );
 
-// Auth
+// ─── Auth ────────────────────────────────────────────────────
 export const authAPI = {
-  register: (data: any) =>
-    api.post("/api/auth/register", data),
-
-  login: (data: any) =>
-    api.post("/api/auth/login", data),
-
-  me: () =>
-    api.get("/api/users/me"),
-
+  register: (data: any) => api.post("/api/auth/register", data),
+  login: (data: any) => api.post("/api/auth/login", data),
+  me: () => api.get("/api/users/me"),
   forgotPassword: (email: string) =>
     api.post("/api/auth/forgot-password", { email }),
-
   resetPassword: (token: string, new_password: string) =>
-    api.post("/api/auth/reset-password", {
-      token,
-      new_password,
-    }),
-
-  changePassword: (
-    current_password: string,
-    new_password: string,
-  ) =>
-    api.post("/api/users/change-password", {
-      current_password,
-      new_password,
-    }),
+    api.post("/api/auth/reset-password", { token, new_password }),
+  changePassword: (current_password: string, new_password: string) =>
+    api.post("/api/users/change-password", { current_password, new_password }),
 };
 
-// User / Profile
+// ─── User / Profile ──────────────────────────────────────────
 export const userAPI = {
-  getMe: () =>
-    api.get("/api/users/me"),
-
+  getMe: () => api.get("/api/users/me"),
   updateProfile: (data: {
     full_name?: string;
     target_role?: string;
     experience_years?: number;
-  }) =>
-    api.put("/api/users/me", data),
-
-  changePassword: (
-    current_password: string,
-    new_password: string,
-  ) =>
-    api.post("/api/users/change-password", {
-      current_password,
-      new_password,
-    }),
-
-  deleteAccount: () =>
-    api.delete("/api/users/me"),
+  }) => api.put("/api/users/me", data),
+  changePassword: (current_password: string, new_password: string) =>
+    api.post("/api/users/change-password", { current_password, new_password }),
+  deleteAccount: () => api.delete("/api/users/me"),
 };
 
-// Interviews
+// ─── Interviews ──────────────────────────────────────────────
 export const interviewAPI = {
-  create: (data: any) => {
-    console.log("Creating interview with:", data);
-
-    return api.post("/api/interviews/", data);
-  },
-
-  list: () =>
-    api.get("/api/interviews/"),
-
-  get: (id: number) =>
-    api.get(`/api/interviews/${id}`),
-
-  start: (id: number) =>
-    api.post(`/api/interviews/${id}/start`),
-
+  create: (data: any) => api.post("/api/interviews/", data),
+  list: () => api.get("/api/interviews/"),
+  get: (id: number) => api.get(`/api/interviews/${id}`),
+  start: (id: number) => api.post(`/api/interviews/${id}/start`),
   submitAnswer: (id: number, data: any) =>
     api.post(`/api/interviews/${id}/answers`, data),
-
-  complete: (id: number) =>
-    api.post(`/api/interviews/${id}/complete`),
+  complete: (id: number) => api.post(`/api/interviews/${id}/complete`),
 };
 
-// Resume
+// ─── Resume ──────────────────────────────────────────────────
 export const resumeAPI = {
   upload: (file: File) => {
     const form = new FormData();
     form.append("file", file);
-
     return api.post("/api/resume/upload", form, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
   },
-
-  list: () =>
-    api.get("/api/resume/"),
-
-  get: (id: number) =>
-    api.get(`/api/resume/${id}`),
+  list: () => api.get("/api/resume/"),
+  get: (id: number) => api.get(`/api/resume/${id}`),
+  delete: (id: number) => api.delete(`/api/resume/${id}`),
 };
 
-// Analytics
+// ─── Analytics ───────────────────────────────────────────────
 export const analyticsAPI = {
-  summary: () =>
-    api.get("/api/analytics/summary"),
+  summary: () => api.get("/api/analytics/summary"),
 };
 
 export default api;

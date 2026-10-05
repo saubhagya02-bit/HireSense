@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 from typing import List
 
 from app.core.database import get_db
@@ -31,13 +31,11 @@ async def upload_resume(
         )
 
     file_bytes = await file.read()
-    if len(file_bytes) > 5 * 1024 * 1024:  # 5 MB limit
+    if len(file_bytes) > 5 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="File too large (max 5 MB)")
 
-    # Parse resume text
     parsed_text = resume_service.parse_resume_file(file_bytes, file.content_type)
 
-    # Upload to MinIO
     storage_key = storage_service.upload_file(
         file_bytes=file_bytes,
         filename=file.filename,
@@ -45,7 +43,6 @@ async def upload_resume(
         bucket=settings.MINIO_BUCKET_RESUMES,
     )
 
-    # AI analysis
     try:
         analysis = await ai_service.analyze_resume(
             resume_text=parsed_text,
@@ -62,9 +59,7 @@ async def upload_resume(
 
     # Deactivate previous resumes
     await db.execute(
-        Resume.__table__.update()
-        .where(Resume.user_id == current_user.id)
-        .values(is_active=False)
+        update(Resume).where(Resume.user_id == current_user.id).values(is_active=False)
     )
 
     resume = Resume(
@@ -111,3 +106,48 @@ async def get_resume(
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")
     return resume
+
+
+@router.delete("/{resume_id}", status_code=200)
+async def delete_resume(
+    resume_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Resume).where(Resume.id == resume_id, Resume.user_id == current_user.id)
+    )
+    resume = result.scalar_one_or_none()
+    if not resume:
+        raise HTTPException(status_code=404, detail="Resume not found")
+
+    # Try delete from MinIO (don't fail if storage error)
+    try:
+        from minio import Minio
+
+        client = Minio(
+            settings.MINIO_ENDPOINT,
+            access_key=settings.MINIO_ACCESS_KEY,
+            secret_key=settings.MINIO_SECRET_KEY,
+            secure=settings.MINIO_SECURE,
+        )
+        client.remove_object(settings.MINIO_BUCKET_RESUMES, resume.storage_key)
+    except Exception:
+        pass  # storage delete is best-effort
+
+    await db.delete(resume)
+    await db.flush()
+
+    # If deleted resume was active, activate the most recent remaining one
+    remaining = await db.execute(
+        select(Resume)
+        .where(Resume.user_id == current_user.id)
+        .order_by(Resume.created_at.desc())
+        .limit(1)
+    )
+    latest = remaining.scalar_one_or_none()
+    if latest and not latest.is_active:
+        latest.is_active = True
+        await db.flush()
+
+    return {"message": "Resume deleted successfully", "id": resume_id}

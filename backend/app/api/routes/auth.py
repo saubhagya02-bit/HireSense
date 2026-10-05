@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timezone, timedelta
@@ -8,6 +8,10 @@ from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.models.user import User
 from app.schemas.schemas import UserRegister, UserLogin, TokenResponse, UserOut
+from app.services.email_service import (
+    send_password_reset_email,
+    send_welcome_email,
+)
 from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
@@ -34,7 +38,11 @@ reset_tokens: dict = {}
 
 # Register
 @router.post("/register", response_model=TokenResponse, status_code=201)
-async def register(data: UserRegister, db: AsyncSession = Depends(get_db)):
+async def register(
+    data: UserRegister,
+    background_task: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(User).where(User.email == data.email))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -73,14 +81,19 @@ async def login(data: UserLogin, db: AsyncSession = Depends(get_db)):
 # Forgot Password
 @router.post("/forgot-password")
 async def forgot_password(
-    data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)
+    data: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(User).where(User.email == data.email))
     user = result.scalar_one_or_none()
 
     # Always return success to prevent email enumeration
     if not user:
-        return {"message": "If that email exists, a reset token has been generated."}
+        return {
+            "message": "If that email exists, a reset token has been generated.",
+            "dev_note": "Email not found - no token generated",
+        }
 
     # Generate secure token
     token = secrets.token_urlsafe(32)
@@ -92,27 +105,43 @@ async def forgot_password(
         "expires_at": expires_at,
     }
 
-    # In production: send email with reset link
-    # For development: return token directly in response
-    return {
-        "message": "Password reset token generated.",
-        "reset_token": token,  # Remove this in production, send via email instead
+    # Send reset email in background
+    background_tasks.add_task(
+        send_password_reset_email,
+        to_email=user.email,
+        full_name=user.full_name,
+        reset_token=token,
+    )
+
+    response = {
+        "message": "Password reset email sent. Check your inbox.",
         "expires_in_minutes": 30,
-        "instruction": "Use this token with POST /api/auth/reset-password",
     }
+
+    # In development — also return token directly so you can test without email
+    from app.core.config import settings
+
+    if settings.ENVIRONMENT == "development":
+        response["dev_token"] = token
+        response["dev_note"] = (
+            "Token included only in development mode. Remove in production."
+        )
+
+    return response
 
 
 # Reset Password
 @router.post("/reset-password")
 async def reset_password(
-    data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)
+    data: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
 ):
     if len(data.new_password) < 8:
         raise HTTPException(
             status_code=400, detail="Password must be at least 8 characters"
         )
 
-    token_data = reset_tokens.get(data.token)
+    token_data = reset_tokens.get(data.token.strip())
 
     if not token_data:
         raise HTTPException(status_code=400, detail="Invalid or expired reset token")
@@ -139,20 +168,3 @@ async def reset_password(
     return {
         "message": "Password reset successfully. You can now login with your new password."
     }
-
-
-# Change Password (authenticated)
-@router.post("/change-password")
-async def change_password(
-    data: ChangePasswordRequest,
-    db: AsyncSession = Depends(get_db),
-):
-    from app.core.security import get_current_user
-    from fastapi import Request
-
-    if len(data.new_password) < 8:
-        raise HTTPException(
-            status_code=400, detail="New password must be at least 8 characters"
-        )
-
-    return {"message": "Use /api/users/change-password with Bearer token instead"}
