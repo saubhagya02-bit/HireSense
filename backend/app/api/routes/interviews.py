@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -22,6 +22,7 @@ from app.schemas.schemas import (
     QuestionOut,
 )
 from app.services import ai_service, audio_service
+from app.services.email_service import send_interview_completion_email
 
 router = APIRouter()
 
@@ -34,6 +35,7 @@ async def create_session(
     current_user: User = Depends(get_current_user),
 ):
     resume_context = None
+    skills = []
     if data.resume_id:
         res = await db.execute(
             select(Resume).where(
@@ -44,10 +46,6 @@ async def create_session(
         if resume:
             resume_context = resume.parsed_text
             skills = resume.skills or []
-        else:
-            skills = []
-    else:
-        skills = []
 
     # Create session
     session = InterviewSession(
@@ -65,22 +63,16 @@ async def create_session(
 
     try:
         questions_data = await ai_service.generate_interview_questions(
-        role=session.target_role,
-        interview_type=data.interview_type,
-        difficulty=data.difficulty,
-        count=data.total_questions,
-        skills=skills,
-        resume_context=resume_context,
-    )
+            role=session.target_role,
+            interview_type=data.interview_type,
+            difficulty=data.difficulty,
+            count=data.total_questions,
+            skills=skills,
+            resume_context=resume_context,
+        )
     except Exception as e:
-        await db.rollback()
-
-        import logging
-        logging.exception("Question generation failed")
-
         raise HTTPException(
-        status_code=500,
-        detail=f"Question generation failed: {str(e)}",
+            status_code=500, detail=f"Question generation failed: {str(e)}"
         )
 
     for idx, q in enumerate(questions_data):
@@ -96,7 +88,6 @@ async def create_session(
         db.add(question)
 
     await db.flush()
-    await db.refresh(session)
 
     result = await db.execute(
         select(InterviewSession)
@@ -171,7 +162,6 @@ async def start_session(
     session.status = "active"
     session.started_at = datetime.now(timezone.utc)
     await db.flush()
-    await db.refresh(session)
 
     full = await db.execute(
         select(InterviewSession)
@@ -192,7 +182,6 @@ async def submit_answer(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Validate session
     s_result = await db.execute(
         select(InterviewSession).where(
             InterviewSession.id == session_id,
@@ -319,6 +308,19 @@ async def complete_session(
         session.duration_minutes = int(delta.total_seconds() / 60)
 
     await db.flush()
+
+    # Send completion email in background
+    BackgroundTasks.add_task(
+        send_interview_completion_email,
+        to_email=current_user.email,
+        full_name=current_user.full_name,
+        session_title=session.title,
+        overall_score=session.overall_score or 0,
+        technical_score=session.technical_score,
+        communication_score=session.communication_score,
+        confidence_score=session.confidence_score,
+        session_id=session_id,
+    )
 
     full = await db.execute(
         select(InterviewSession)
