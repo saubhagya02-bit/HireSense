@@ -319,7 +319,6 @@ docker compose exec postgres psql -U interview_user -d interview_db
 
 ## 🗺️ Roadmap
 
-- [ ] Email delivery for password reset (SMTP integration)
 - [ ] OpenAI Whisper integration for audio transcription
 - [ ] Video recording + facial expression analysis
 - [ ] Interview scheduling and calendar integration
