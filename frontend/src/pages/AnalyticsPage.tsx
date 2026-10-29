@@ -126,7 +126,7 @@ export default function AnalyticsPage() {
                   tick={{
                     fill: "#64748b",
                     fontSize: 10,
-                    fontFamily: "DM Sans",
+                    fontFamily:"Inter",
                   }}
                   axisLine={false}
                   tickLine={false}
@@ -142,10 +142,10 @@ export default function AnalyticsPage() {
                 <Line
                   type="monotone"
                   dataKey="score"
-                  stroke="#c8f135"
+                  stroke="#A855F7"
                   strokeWidth={2.5}
-                  dot={{ fill: "#c8f135", strokeWidth: 0, r: 4 }}
-                  activeDot={{ r: 6, fill: "#c8f135" }}
+                  dot={{ fill: "#A855F7", strokeWidth: 0, r: 4 }}
+                  activeDot={{ r: 6, fill: "#A855F7" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -171,7 +171,7 @@ export default function AnalyticsPage() {
                   tick={{
                     fill: "#64748b",
                     fontSize: 10,
-                    fontFamily: "DM Sans",
+                    fontFamily: "Inter",
                   }}
                   axisLine={false}
                   tickLine={false}
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
                 <Tooltip content={<CustomTooltip />} />
                 <Bar
                   dataKey="score"
-                  fill="#c8f135"
+                  fill="#A855F7"
                   fillOpacity={0.85}
                   radius={[6, 6, 0, 0]}
                 />
