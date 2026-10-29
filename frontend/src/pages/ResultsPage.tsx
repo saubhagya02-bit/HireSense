@@ -30,7 +30,7 @@ function ScoreRing({
   const r = (size - 10) / 2;
   const circ = 2 * Math.PI * r;
   const dash = (score / 100) * circ;
-  const color = score >= 75 ? "#c8f135" : score >= 50 ? "#fbbf24" : "#f87171";
+  const color = score >= 75 ? "#A855F7" : score >= 50 ? "#fbbf24" : "#f87171";
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -157,13 +157,13 @@ export default function ResultsPage() {
               <PolarGrid stroke="rgba(255,255,255,0.06)" />
               <PolarAngleAxis
                 dataKey="subject"
-                tick={{ fill: "#94a3b8", fontSize: 11, fontFamily: "DM Sans" }}
+                tick={{ fill: "#94a3b8", fontSize: 11, fontFamily: "Inter" }}
               />
               <Radar
                 name="Score"
                 dataKey="A"
-                stroke="#c8f135"
-                fill="#c8f135"
+                stroke="#A855F7"
+                fill="#A855F7"
                 fillOpacity={0.15}
                 strokeWidth={2}
               />
