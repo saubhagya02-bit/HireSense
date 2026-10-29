@@ -41,7 +41,7 @@ export default function Layout() {
         {/* Logo */}
         <div className="p-6 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-volt rounded-lg flex items-center justify-center">
               <Zap size={16} className="text-slate-900" strokeWidth={2.5} />
             </div>
 
@@ -66,7 +66,7 @@ export default function Layout() {
                 clsx(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200",
                   isActive
-                    ? "bg-yellow-400/10 text-yellow-400 border border-yellow-400/20"
+                    ? "bg-volt/15 text-volt-light border border-volt/30"
                     : "text-slate-400 hover:text-white hover:bg-white/5",
                 )
               }
