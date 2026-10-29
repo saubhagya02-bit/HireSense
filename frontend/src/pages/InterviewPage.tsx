@@ -15,7 +15,7 @@ import clsx from "clsx";
 
 export default function InterviewPage() {
   const { id } = useParams<{ id: string }>();
-  const sessionId = Number(id?.replace(":", "")); 
+  const sessionId = Number(id?.replace(":", ""));
   const navigate = useNavigate();
 
   const [session, setSession] = useState<any>(null);
@@ -61,13 +61,14 @@ export default function InterviewPage() {
   const isAnswered = currentQuestion && answers[currentQuestion.id];
 
   const handleStopAndSubmit = async () => {
-    const { transcript: finalText, durationSeconds } = stopRecording();
+    setSubmitting(true);
+    const { transcript: finalText, durationSeconds } = await stopRecording();
     if (!finalText.trim()) {
+      setSubmitting(false);
       toast.error("No speech detected. Try again.");
       return;
     }
 
-    setSubmitting(true);
     try {
       const { data } = await interviewAPI.submitAnswer(sessionId, {
         question_id: currentQuestion.id,
