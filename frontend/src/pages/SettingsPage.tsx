@@ -95,7 +95,7 @@ export default function SettingsPage() {
     try {
       await userAPI.changePassword(
         passwords.current_password,
-        passwords.new_password
+        passwords.new_password,
       );
       toast.success("Password changed!");
       setPasswords({
@@ -137,19 +137,18 @@ export default function SettingsPage() {
     .slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 max-w-3xl mx-auto">
-
+    <div className="min-h-screen bg-ink-950 p-8 max-w-3xl mx-auto">
       {/* HEADER */}
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => navigate("/")}
-          className="p-2 rounded-xl border border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-900"
+          className="p-2 rounded-xl border border-white/10 hover:border-white/20 text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
         >
           <ArrowLeft size={16} />
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold">Account Settings</h1>
+          <h1 className="text-2xl font-bold text-white">Account Settings</h1>
           <p className="text-slate-500 text-sm">
             Manage your profile and security
           </p>
@@ -157,7 +156,6 @@ export default function SettingsPage() {
       </div>
 
       <div className="flex gap-6">
-
         {/* SIDEBAR */}
         <div className="w-44 space-y-1">
           {[
@@ -169,10 +167,10 @@ export default function SettingsPage() {
               key={id}
               onClick={() => setActiveTab(id as Tab)}
               className={clsx(
-                "w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm border",
+                "w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-colors",
                 activeTab === id
-                  ? "bg-yellow-400/10 text-yellow-500 border-yellow-400/20"
-                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-200 border-transparent"
+                  ? "bg-volt/15 text-volt-light border-volt/30"
+                  : "text-slate-400 hover:text-white hover:bg-white/5 border-transparent",
               )}
             >
               <Icon size={15} />
@@ -183,15 +181,13 @@ export default function SettingsPage() {
 
         {/* CONTENT */}
         <div className="flex-1">
-
           {/* PROFILE */}
           {activeTab === "profile" && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl text-white space-y-4">
-
+            <div className="bg-ink-800 border border-white/10 rounded-2xl p-6 shadow-xl text-white space-y-4">
               {/* Avatar */}
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center">
-                  <span className="text-yellow-400 font-bold text-xl">
+                <div className="w-16 h-16 rounded-2xl bg-volt/20 border border-volt/30 flex items-center justify-center">
+                  <span className="text-volt font-bold text-xl">
                     {initials || "?"}
                   </span>
                 </div>
@@ -207,14 +203,13 @@ export default function SettingsPage() {
 
               {/* FORM */}
               <form onSubmit={handleSaveProfile} className="space-y-4">
-
                 {/* NAME */}
                 <input
                   value={profile.full_name}
                   onChange={(e) =>
                     setProfile({ ...profile, full_name: e.target.value })
                   }
-                  className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 focus:border-yellow-400 outline-none"
+                  className="w-full bg-ink-700 border-white/10 text-white rounded-xl px-4 py-3 focus:border-volt outline-none"
                   placeholder="Full Name"
                 />
 
@@ -224,7 +219,7 @@ export default function SettingsPage() {
                   onChange={(e) =>
                     setProfile({ ...profile, target_role: e.target.value })
                   }
-                  className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 focus:border-yellow-400 outline-none"
+                  className="w-full bg-ink-700 border-white/10 text-white rounded-xl px-4 py-3 focus:border-volt outline-none"
                 >
                   <option value="">Select role</option>
                   {ROLES.map((r) => (
@@ -246,13 +241,13 @@ export default function SettingsPage() {
                       experience_years: +e.target.value,
                     })
                   }
-                  className="w-full accent-yellow-400"
+                  className="w-full accent-volt"
                 />
 
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="w-full bg-yellow-400 text-slate-900 font-semibold py-3 rounded-xl hover:bg-yellow-300"
+                  className="w-full bg-volt text-white font-semibold py-3 rounded-xl hover:bg-purple-500"
                 >
                   {savingProfile ? "Saving..." : "Save Changes"}
                 </button>
@@ -262,8 +257,7 @@ export default function SettingsPage() {
 
           {/* SECURITY */}
           {activeTab === "security" && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl text-white space-y-4">
-
+            <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl text-white space-y-4">
               <input
                 type={showCurrent ? "text" : "password"}
                 value={passwords.current_password}
@@ -273,7 +267,7 @@ export default function SettingsPage() {
                     current_password: e.target.value,
                   })
                 }
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3"
+                className="w-full bg-ink-700 border-white/10 rounded-xl px-4 py-3"
                 placeholder="Current Password"
               />
 
@@ -283,7 +277,7 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setPasswords({ ...passwords, new_password: e.target.value })
                 }
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3"
+                className="w-full bg-ink-700 border-white/10 rounded-xl px-4 py-3"
                 placeholder="New Password"
               />
 
@@ -296,14 +290,14 @@ export default function SettingsPage() {
                     confirm_password: e.target.value,
                   })
                 }
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3"
+                className="w-full bg-ink-700 border-white/10 rounded-xl px-4 py-3"
                 placeholder="Confirm Password"
               />
 
               <button
                 onClick={handleChangePassword}
                 disabled={savingPassword}
-                className="w-full bg-yellow-400 text-slate-900 font-semibold py-3 rounded-xl hover:bg-yellow-300"
+                className="w-full bg-volt text-white font-semibold py-3 rounded-xl hover:bg-purple-500"
               >
                 {savingPassword ? "Updating..." : "Update Password"}
               </button>
@@ -313,13 +307,12 @@ export default function SettingsPage() {
           {/* DANGER */}
           {activeTab === "danger" && (
             <div className="bg-slate-900 border border-red-500/20 rounded-2xl p-6 shadow-xl text-white">
-
               <p className="text-red-400 font-bold mb-2">Danger Zone</p>
 
               <input
                 value={deleteConfirm}
                 onChange={(e) => setDeleteConfirm(e.target.value)}
-                className="w-full bg-slate-800 border border-red-500/20 rounded-xl px-4 py-3 mb-4"
+                className="w-full bg-ink-700 border border-red-500/20 rounded-xl px-4 py-3 mb-4"
                 placeholder="Type your email to confirm"
               />
 
@@ -332,7 +325,6 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
-
         </div>
       </div>
     </div>
