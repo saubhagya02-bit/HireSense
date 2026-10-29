@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html,
+  body,
+  #root {
+    @apply bg-ink-950 text-slate-200;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-white;
+  }
+  label {
+    @apply text-slate-300;
+  }
+}
+@layer base {
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight;
+  }
+}
+
+body {
+  @apply bg-ink-950 text-slate-200 antialiased;
+}
+
 input,
 textarea,
 select {
@@ -15,5 +43,19 @@ textarea::placeholder {
 
 select option {
   color: white;
-  background: #111827;
+  background: #15132a;
+}
+
+@layer components {
+  .card {
+    @apply bg-ink-800 border border-white/[0.07] rounded-2xl p-5;
+  }
+  .btn-primary {
+    @apply bg-volt text-white font-semibold px-4 py-2.5 rounded-xl
+           hover:bg-purple-500 transition-colors;
+  }
+  .btn-ghost {
+    @apply border border-white/10 text-slate-300 rounded-xl px-4
+           hover:bg-white/5 transition-colors;
+  }
 }
