@@ -37,25 +37,25 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ink-950 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center">
-              <Zap size={20} className="text-slate-900" strokeWidth={2.5} />
+            <div className="w-10 h-10 bg-volt rounded-xl flex items-center justify-center">
+              <Zap size={20} className="text-white" strokeWidth={2.5} />
             </div>
 
             <span className="text-2xl font-bold">HireSense</span>
           </div>
 
-          <h1 className="text-3xl font-bold mb-2">Start Preparing</h1>
+          <h1 className="text-3xl font-bold mb-2 text-white">Start Preparing</h1>
 
           <p className="text-slate-500">Create your account — it's free</p>
         </div>
 
         {/* Register Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div className="bg-ink-800 border border-white/10 rounded-2xl p-6 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name */}
             <div>
@@ -69,7 +69,7 @@ export default function RegisterPage() {
                 onChange={(e) =>
                   setForm({ ...form, full_name: e.target.value })
                 }
-                className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder:text-slate-400 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 outline-none"
+                className="w-full bg-ink-700 text-white border 10 rounded-xl px-4 py-3 text-sm placeholder:text-slate-400 focus:border-volt focus:ring-1 focus:ring-volt outline-none"
                 placeholder="Your Name"
                 required
               />
@@ -85,7 +85,7 @@ export default function RegisterPage() {
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder:text-slate-400 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 outline-none"
+                className="w-full bg-ink-700 text-white border 10 rounded-xl px-4 py-3 text-sm placeholder:text-slate-400 focus:border-volt focus:ring-1 focus:ring-volt outline-none"
                 placeholder="you@gmail.com"
                 required
               />
@@ -101,7 +101,7 @@ export default function RegisterPage() {
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder:text-slate-400 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 outline-none"
+                className="w-full bg-ink-700 text-white border 10 rounded-xl px-4 py-3 text-sm placeholder:text-slate-400 focus:border-volt focus:ring-1 focus:ring-volt outline-none"
                 placeholder="Minimum 8 characters"
                 required
               />
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                 onChange={(e) =>
                   setForm({ ...form, target_role: e.target.value })
                 }
-                className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl px-4 py-3 text-sm placeholder:text-slate-400 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 outline-none"
+                className="w-full bg-ink-700 text-white border 10 rounded-xl px-4 py-3 text-sm placeholder:text-slate-400 focus:border-volt focus:ring-1 focus:ring-volt outline-none"
                 placeholder="e.g. Software Engineer"
               />
             </div>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
                     experience_years: Number(e.target.value),
                   })
                 }
-                className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 outline-none"
+                className="w-full bg-ink-700 text-white border 10 rounded-xl px-4 py-3 text-sm focus:border-volt focus:ring-1 focus:ring-volt outline-none"
               />
             </div>
 
@@ -149,7 +149,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-yellow-400 text-slate-900 font-semibold py-3 rounded-xl hover:bg-yellow-300 transition disabled:opacity-50"
+              className="w-full bg-volt text-white font-semibold py-3 rounded-xl hover:bg-purple-500 transition disabled:opacity-50"
             >
               {loading ? "Creating account..." : "Create Account"}
             </button>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-yellow-400 hover:text-yellow-300 hover:underline"
+              className="text-volt hover:text-purple-500 hover:underline"
             >
               Sign in
             </Link>
