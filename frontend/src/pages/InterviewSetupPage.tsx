@@ -37,17 +37,17 @@ const DIFFICULTIES = [
   {
     id: "beginner",
     label: "Beginner",
-    color: "text-slate-900 border-slate-400 bg-slate-200",
+    color: "text-emerald-300 border-emerald-400/40 bg-emerald-400/10",
   },
   {
     id: "intermediate",
     label: "Intermediate",
-    color: "text-yellow-950 border-yellow-400 bg-yellow-100",
+    color: "text-amber-300 border-amber-400/40 bg-amber-400/10",
   },
   {
     id: "advanced",
     label: "Advanced",
-    color: "text-red-950 border-red-400 bg-red-100",
+    color: "text-rose-300 border-rose-400/40 bg-rose-400/10",
   },
 ];
 
@@ -91,12 +91,12 @@ export default function InterviewSetupPage() {
   };
 
   return (
-    <div className="p-8 max-w-2xl mx-auto animate-fade-up text-slate-800">
+    <div className="p-8 max-w-2xl mx-auto animate-fade-up text-white">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold mb-2 text-slate-900">
+        <h1 className="font-display text-3xl font-bold mb-2 text-white">
           Set up your interview
         </h1>
-        <p className="text-slate-500 text-sm">
+        <p className="text-white text-sm">
           Configure the session and AI will generate tailored questions
         </p>
       </div>
@@ -104,7 +104,7 @@ export default function InterviewSetupPage() {
       <div className="space-y-6">
         {/* Title */}
         <div className="card">
-          <label className="block text-sm font-display font-semibold mb-3 text-slate-800">
+          <label className="block text-sm font-display font-semibold mb-3 text-white">
             Session Title
           </label>
           <input
@@ -117,7 +117,7 @@ export default function InterviewSetupPage() {
 
         {/* Interview Type */}
         <div className="card">
-          <label className="block text-sm font-display font-semibold mb-3 text-slate-800">
+          <label className="block text-sm font-display font-semibold mb-3 text-white">
             Interview Type
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -130,18 +130,18 @@ export default function InterviewSetupPage() {
                   className={clsx(
                     "p-4 rounded-xl border text-left transition-all",
                     isActive
-                      ? "border-volt/50 bg-volt/10" 
+                      ? "border-volt/50 bg-volt/10"
                       : "border-white/5 bg-ink-700 hover:border-white/20",
                   )}
                 >
                   <Icon
                     size={18}
-                    className={isActive ? "text-volt" : "text-slate-400"}
+                    className={isActive ? "text-volt" : "text-white"}
                   />
                   <p
                     className={clsx(
                       "font-display font-semibold text-sm mt-2",
-                      isActive ? "text-slate-900 font-bold" : "text-white"
+                      isActive ? "text-white font-bold" : "text-white",
                     )}
                   >
                     {label}
@@ -149,7 +149,7 @@ export default function InterviewSetupPage() {
                   <p
                     className={clsx(
                       "text-xs mt-0.5",
-                      isActive ? "text-slate-700" : "text-slate-400"
+                      isActive ? "text-white" : "text-white",
                     )}
                   >
                     {desc}
@@ -162,7 +162,7 @@ export default function InterviewSetupPage() {
 
         {/* Difficulty */}
         <div className="card">
-          <label className="block text-sm font-display font-semibold mb-3 text-slate-800">
+          <label className="block text-sm font-display font-semibold mb-3 text-white">
             Difficulty
           </label>
           <div className="flex gap-3">
@@ -174,7 +174,7 @@ export default function InterviewSetupPage() {
                   "flex-1 py-2.5 rounded-xl border text-sm font-display font-semibold transition-all",
                   form.difficulty === id
                     ? color
-                    : "border-white/10 text-slate-300 bg-ink-800 hover:border-white/30 hover:bg-ink-700",
+                    : "border-white/10 text-white bg-ink-800 hover:border-white/30 hover:bg-ink-700",
                 )}
               >
                 {label}
@@ -186,7 +186,7 @@ export default function InterviewSetupPage() {
         {/* Config row */}
         <div className="grid grid-cols-2 gap-4">
           <div className="card">
-            <label className="block text-xs text-slate-700 mb-2 font-semibold">
+            <label className="block text-xs text-white mb-2 font-semibold">
               Target Role
             </label>
             <input
@@ -199,7 +199,7 @@ export default function InterviewSetupPage() {
             />
           </div>
           <div className="card">
-            <label className="block text-xs text-slate-700 mb-2 font-semibold">
+            <label className="block text-xs text-white mb-2 font-semibold">
               Number of Questions
             </label>
             <div className="flex items-center gap-3">
@@ -223,9 +223,9 @@ export default function InterviewSetupPage() {
         {/* Resume */}
         {resumes.length > 0 && (
           <div className="card">
-            <label className="block text-sm font-display font-semibold mb-3 text-slate-800">
+            <label className="block text-sm font-display font-semibold mb-3 text-white">
               Link Resume{" "}
-              <span className="text-slate-500 font-normal text-xs">
+              <span className="text-white font-normal text-xs">
                 (optional — improves question relevance)
               </span>
             </label>
@@ -239,9 +239,15 @@ export default function InterviewSetupPage() {
               }
               className="w-full bg-ink-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-volt/40"
             >
-              <option value="" className="bg-ink-800 text-slate-300">No resume</option>
+              <option value="" className="bg-ink-800 text-white">
+                No resume
+              </option>
               {resumes.map((r) => (
-                <option key={r.id} value={r.id} className="bg-ink-800 text-white">
+                <option
+                  key={r.id}
+                  value={r.id}
+                  className="bg-ink-800 text-white"
+                >
                   {r.filename}
                 </option>
               ))}
