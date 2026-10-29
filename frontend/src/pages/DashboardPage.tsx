@@ -27,7 +27,7 @@ function ScoreCircle({ score, size = 80 }: { score: number; size?: number }) {
   const r = (size - 8) / 2;
   const circ = 2 * Math.PI * r;
   const dash = (score / 100) * circ;
-  const color = score >= 75 ? "#c8f135" : score >= 50 ? "#fbbf24" : "#f87171";
+  const color = score >= 75 ? "#A855F7" : score >= 50 ? "#34D399" : "#f87171";
 
   return (
     <svg width={size} height={size} className="-rotate-90">
@@ -57,7 +57,7 @@ function ScoreCircle({ score, size = 80 }: { score: number; size?: number }) {
         textAnchor="middle"
         fill="white"
         fontSize={size / 5}
-        fontFamily="Syne"
+        fontFamily="Inter"
         fontWeight="700"
         style={{ transform: "rotate(90deg)", transformOrigin: "center" }}
       >
