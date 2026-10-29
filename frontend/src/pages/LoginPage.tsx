@@ -27,24 +27,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ink-950 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center">
-              <Zap size={20} className="text-slate-900" strokeWidth={2.5} />
+            <div className="w-10 h-10 bg-volt rounded-xl flex items-center justify-center">
+              <Zap size={20} className="text-white" strokeWidth={2.5} />
             </div>
             <span className="text-2xl font-bold">HireSense</span>
           </div>
 
-          <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
+          <h1 className="text-3xl font-bold mb-2 text-white">Welcome back</h1>
 
           <p className="text-slate-500">Sign in to continue your practice</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div className="bg-ink-800 border border-white/10 rounded-2xl p-6 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs text-slate-400 mb-1.5">
@@ -61,7 +61,7 @@ export default function LoginPage() {
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl pl-9 pr-4 py-3 text-sm placeholder:text-slate-400 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 outline-none"
+                  className="w-full bg-ink-700 text-white border 10 rounded-xl pl-9 pr-4 py-3 text-sm placeholder:text-slate-400 focus:border-volt focus:ring-1 focus:ring-volt outline-none"
                   placeholder="you@gmail.com"
                   required
                 />
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-yellow-400 hover:text-yellow-300 hover:underline text-xs"
+                  className="text-volt hover:text-purple-500 hover:underline text-xs"
                 >
                   Forgot password?
                 </Link>
@@ -92,7 +92,7 @@ export default function LoginPage() {
                   onChange={(e) =>
                     setForm({ ...form, password: e.target.value })
                   }
-                  className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl pl-9 pr-4 py-3 text-sm placeholder:text-slate-400 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 outline-none"
+                  className="w-full bg-ink-700 text-white border 10 rounded-xl pl-9 pr-4 py-3 text-sm placeholder:text-slate-400 focus:border-volt focus:ring-1 focus:ring-volt outline-none"
                   placeholder="••••••••"
                   required
                 />
@@ -102,7 +102,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-yellow-400 text-slate-900 font-semibold py-3 rounded-xl hover:bg-yellow-300 transition"
+              className="w-full bg-volt text-white font-semibold py-3 rounded-xl hover:bg-purple-500 transition"
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
@@ -112,7 +112,7 @@ export default function LoginPage() {
             No account?{" "}
             <Link
               to="/register"
-              className="text-yellow-400 hover:text-yellow-300 hover:underline"
+              className="text-volt hover:text-purple-500 hover:underline"
             >
               Create one
             </Link>
