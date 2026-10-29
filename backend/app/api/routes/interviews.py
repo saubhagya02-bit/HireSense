@@ -258,6 +258,7 @@ async def submit_answer(
 @router.post("/{session_id}/complete", response_model=SessionOut)
 async def complete_session(
     session_id: int,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -310,7 +311,7 @@ async def complete_session(
     await db.flush()
 
     # Send completion email in background
-    BackgroundTasks.add_task(
+    background_tasks.add_task(
         send_interview_completion_email,
         to_email=current_user.email,
         full_name=current_user.full_name,
