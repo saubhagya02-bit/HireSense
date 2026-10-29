@@ -34,18 +34,18 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-ink-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center">
-              <Zap size={20} className="text-slate-900" />
+            <div className="w-10 h-10 bg-volt rounded-xl flex items-center justify-center">
+              <Zap size={20} className="text-white" />
             </div>
             <span className="text-2xl font-bold">HireSense</span>
           </div>
 
-          <h1 className="text-3xl font-bold mb-2">Forgot password?</h1>
+          <h1 className="text-3xl font-bold mb-2 text-white">Forgot password?</h1>
 
           <p className="text-slate-500 text-sm">
             {step === "form"
@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div className="bg-ink-800 border border-white/10 rounded-2xl p-6 shadow-xl">
           {step === "form" ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl pl-9 pr-4 py-3 text-sm focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 outline-none"
+                    className="w-full bg-ink-700 text-white border 10 rounded-xl pl-9 pr-4 py-3 text-sm focus:border-volt focus:ring-1 focus:ring-volt outline-none"
                     placeholder="you@gmail.com"
                     required
                   />
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-yellow-400 text-slate-900 font-semibold py-3 rounded-xl hover:bg-yellow-300"
+                className="w-full bg-volt text-white font-semibold py-3 rounded-xl hover:bg-purple-500"
               >
                 {loading ? "Generating token..." : "Get Reset Token"}
               </button>
@@ -101,13 +101,13 @@ export default function ForgotPasswordPage() {
                 </label>
 
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 font-mono text-xs text-yellow-400 break-all">
+                  <div className="flex-1 bg-ink-700 border 10 rounded-xl px-4 py-3 font-mono text-xs text-volt break-all">
                     {resetToken}
                   </div>
 
                   <button
                     onClick={copyToken}
-                    className="p-3 bg-slate-800 border border-slate-700 rounded-xl"
+                    className="p-3 bg-ink-700 border 10 rounded-xl"
                   >
                     {copied ? (
                       <Check size={14} className="text-green-400" />
@@ -118,7 +118,7 @@ export default function ForgotPasswordPage() {
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-800 rounded-xl space-y-1.5">
+              <div className="p-3 bg-ink-700 rounded-xl space-y-1.5">
                 <p className="text-xs font-bold text-white">Next steps:</p>
                 <p className="text-xs text-slate-400">1. Copy token</p>
                 <p className="text-xs text-slate-400">2. Go to reset page</p>
@@ -127,7 +127,7 @@ export default function ForgotPasswordPage() {
 
               <Link
                 to="/reset-password"
-                className="block text-center w-full bg-yellow-400 text-slate-900 font-semibold py-3 rounded-xl hover:bg-yellow-300"
+                className="block text-center w-full bg-volt text-white font-semibold py-3 rounded-xl hover:bg-purple-500"
               >
                 Go to Reset Password →
               </Link>
@@ -138,7 +138,7 @@ export default function ForgotPasswordPage() {
         <p className="text-center text-sm text-slate-500 mt-4">
           <Link
             to="/login"
-            className="text-yellow-400 hover:underline flex items-center justify-center gap-1"
+            className="text-volt hover:underline flex items-center justify-center gap-1"
           >
             <ArrowLeft size={12} /> Back to login
           </Link>
