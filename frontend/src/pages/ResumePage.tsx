@@ -293,7 +293,7 @@ export default function ResumePage() {
                                 r.ats_score >= 75
                                   ? "text-volt"
                                   : r.ats_score >= 50
-                                    ? "text-yellow-400"
+                                    ? "text-volt-light"
                                     : "text-red-400",
                               )}
                             >
