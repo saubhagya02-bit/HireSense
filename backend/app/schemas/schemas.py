@@ -66,6 +66,7 @@ class AnswerSubmit(BaseModel):
     audio_storage_key: Optional[str] = None
     speech_rate_wpm: Optional[float] = None
     filler_word_count: Optional[int] = None
+    input_mode: str = "voice"
 
 
 class AnswerOut(BaseModel):
