@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
 from datetime import datetime, timezone
 from typing import List
@@ -142,6 +142,34 @@ async def get_session(
     return session
 
 
+# Delete Session
+@router.delete("/{session_id}")
+async def delete_session(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(InterviewSession).where(
+            InterviewSession.id == session_id,
+            InterviewSession.user_id == current_user.id,
+        )
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # Delete children first (answers reference questions)
+    await db.execute(
+        delete(InterviewAnswer).where(InterviewAnswer.session_id == session_id)
+    )
+    await db.execute(
+        delete(InterviewQuestion).where(InterviewQuestion.session_id == session_id)
+    )
+    await db.execute(delete(InterviewSession).where(InterviewSession.id == session_id))
+
+    return {"message": "Session deleted", "id": session_id}
+
+
 # Start Session
 @router.post("/{session_id}/start", response_model=SessionOut)
 async def start_session(
@@ -204,10 +232,17 @@ async def submit_answer(
         raise HTTPException(status_code=404, detail="Question not found")
 
     # Voice/text analysis
-    text_metrics = audio_service.analyze_transcription(
-        data.transcribed_text or "",
-        data.duration_seconds or 60,
-    )
+    if data.input_mode == "typed":
+        text_metrics = {
+            "speech_rate_wpm": None,
+            "filler_word_count": None,
+            "confidence_score": None,
+        }
+    else:
+        text_metrics = audio_service.analyze_transcription(
+            data.transcribed_text or "",
+            data.duration_seconds or 60,
+        )
 
     # AI evaluation
     try:
@@ -278,12 +313,14 @@ async def complete_session(
         {"overall_score": a.overall_score or 0, "ai_feedback": a.ai_feedback or ""}
         for a in session.answers
     ]
+    voice_answers = [a for a in session.answers if a.speech_rate_wpm is not None]
+    n = len(voice_answers)
     voice_metrics = {
-        "avg_speech_rate": sum(a.speech_rate_wpm or 0 for a in session.answers)
-        / max(len(session.answers), 1),
-        "total_fillers": sum(a.filler_word_count or 0 for a in session.answers),
-        "avg_confidence": sum(a.confidence_score or 0 for a in session.answers)
-        / max(len(session.answers), 1),
+        "has_voice": n > 0,
+        "avg_speech_rate": sum(a.speech_rate_wpm for a in voice_answers) / max(n, 1),
+        "total_fillers": sum(a.filler_word_count or 0 for a in voice_answers),
+        "avg_confidence": sum(a.confidence_score or 0 for a in voice_answers)
+        / max(n, 1),
     }
 
     try:
