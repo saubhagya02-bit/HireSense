@@ -295,6 +295,14 @@ async def generate_session_summary(
         ]
     )
 
+    if voice_metrics.get("has_voice", True):
+        voice_block = f"""Voice metrics:
+    - Speech rate: {voice_metrics.get('avg_speech_rate', 0):.0f} WPM (ideal: 130-160)
+    - Filler words: {voice_metrics.get('total_fillers', 0)}
+    - Confidence: {voice_metrics.get('avg_confidence', 0):.0f}/100"""
+    else:
+        voice_block = "Voice metrics: not available (the candidate typed their answers). Judge confidence from the clarity and decisiveness of the answers."
+
     prompt = f"""Summarize this mock interview for a {role} candidate. Return ONLY a valid JSON object.
 No markdown, no explanation, no extra text.
 
