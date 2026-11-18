@@ -17,12 +17,17 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error.response?.status === 401) {
+    const url: string = error.config?.url ?? "";
+    const isAuthRoute = url.includes("/api/auth/");
+    const hasToken = !!useAuthStore.getState().token;
+
+    // Only treat 401 as "session expired" for logged-in users on non-auth routes
+    if (error.response?.status === 401 && hasToken && !isAuthRoute) {
       useAuthStore.getState().logout();
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // ─── Auth ────────────────────────────────────────────────────
@@ -60,6 +65,7 @@ export const interviewAPI = {
   submitAnswer: (id: number, data: any) =>
     api.post(`/api/interviews/${id}/answers`, data),
   complete: (id: number) => api.post(`/api/interviews/${id}/complete`),
+  delete: (id: number) => api.delete(`/api/interviews/${id}`),
 };
 
 // ─── Resume ──────────────────────────────────────────────────
